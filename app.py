@@ -1,15 +1,20 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
-import os
+
 
 # Load env vars
 load_dotenv()
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = os.getenv("MONGO_URI")
-app.secret_key = os.getenv("SECRET_KEY")
+
+# ✅ Set default Mongo URI (IMPORTANT)
+app.config["MONGO_URI"] = os.environ.get(
+    "MONGO_URI",
+    "mongodb://localhost:27017/students"
+)
 
 mongo = PyMongo(app)
 
