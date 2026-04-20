@@ -1,38 +1,60 @@
-# Student Registration System
+# Flask App CI/CD Pipeline in 2 ways
 
-A simple **Flask** web application to manage student records with **MongoDB** as the backend database. Users can **add, view, update, and delete** student details.
 
----
+## PART 1 —  CI/CD through GitHub Actions
 
-## Features
 
-* List all students on the home page
-* Add a new student
-* Update existing student details
-* Delete a student with confirmation
-* Simple and responsive UI using Bootstrap
+### Step-01: Fork the Source Code from Github Repo
 
----
+- Source Code Repo Link  ---> Fork  --->  My own Repo Name  ---> Fork only the main branch
+-  Click Fork
+- Clone it locally:
 
-## Tech Stack
+ ```bash 
+git clone https://github.com/Saima-Devops/Flask-App-CI-CD-Pipeline.git
+cd Flask-App-CI-CD-Pipeline
+````
 
-* **Backend:** Python, Flask
-* **Database:** MongoDB (via Flask-PyMongo)
-* **Frontend:** HTML, Jinja2 templates, Bootstrap 5
-* **Environment Variables:** Managed via `.env` file
+### Step-02: Run & Test the App Locally
 
----
-
-## Setup Instructions
-
-### 1. Clone the repository
+#### Project Structure 
 
 ```bash
-git clone <your-repo-url>
-cd <repo-folder>
+flask-app/
+│── app.py
+│── requirements.txt
+│── .env
+│── templates/
+│── .github/workflows/deploy.yml
+│── start_flask.sh
+│── test_app.py
+│── Jenkinsfile
 ```
 
-### 2. Create and activate a virtual environment
+Open the project folder in 'VSCode'
+
+<img width="1891" height="993" alt="image" src="https://github.com/user-attachments/assets/d056f3b9-471c-4e81-aaab-3f260303b07a" />
+
+-----
+
+### Connect with MongoDB and get the URI 
+
+<img width="1474" height="726" alt="image" src="https://github.com/user-attachments/assets/c6d1c612-a446-4e80-953d-47c9ea8806ee" />
+
+
+### Set Environment Variables
+
+Create `.env` file:
+
+```bash
+MONGO_URI=mongodb+srv://saimausmandxb_db_user:U1-------@cluster.-----t.mongodb.net/students
+```
+
+-----
+
+### Local Setup
+
+#### Create a Virtual Environment first
 
 ```bash
 python -m venv venv
@@ -43,83 +65,47 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-### 3. Install dependencies
+#### Install all dependencies
 
 ```bash
 pip install -r requirements.txt
+python3 app.py
 ```
 
-**`requirements.txt` example:**
+<img width="1314" height="647" alt="image" src="https://github.com/user-attachments/assets/ecdd5405-ae5c-4674-9ca0-7665b52d3898" />
 
-```
-Flask
-Flask-PyMongo
-python-dotenv
-bson
-```
+-----
 
-### 4. Configure environment variables
+#### Run the App locally
 
-Create a `.env` file in the project root:
+<img width="1911" height="770" alt="image" src="https://github.com/user-attachments/assets/f05bd716-a8d3-4fb6-b709-628013f06d09" />
 
-```
-MONGO_URI=<your-mongodb-connection-string>
-SECRET_KEY=<your-secret-key>
-```
+**Check its functionality**
 
-### 5. Run the application
+<img width="1908" height="652" alt="image" src="https://github.com/user-attachments/assets/3daa6f12-cfbb-4280-a7bd-3e19688209ae" />
+
+
+**Everything is working fine** 👍
+
+------
+
+### Step-03: Github Branching Setup
+
+#### Create Branches
 
 ```bash
-python app.py
+git checkout -b staging
+git push origin staging
+git checkout main
 ```
-
-Open your browser at: [http://localhost:8000](http://localhost:8000)
-
----
-
-## Project Structure
-
-```
-project/
-│
-├── templates/
-│   ├── base.html
-│   ├── index.html
-│   ├── add_student.html
-│   ├── update_student.html
-│
-├── app.py
-├── requirements.txt
-└── .env
-```
-
----
-
-## Screenshots
-
-**Home Page**
-Lists all students with Edit/Delete buttons.
-- <img width="1902" height="607" alt="image" src="https://github.com/user-attachments/assets/a58a6a6d-4978-4769-8074-232e4d31e69d" />
-
-
-**Add Student**
-Form to add a new student.
-- <img width="1897" height="801" alt="image" src="https://github.com/user-attachments/assets/d65d25c3-ebb5-410a-adb1-e130ad7c5878" />
-
-
-**Update Student**
-Form pre-filled with student details.
-- <img width="1905" height="897" alt="image" src="https://github.com/user-attachments/assets/04febf01-879f-431f-ab07-abcfb993acf1" />
-
 
 
 ---
 
-## Notes
+## Author 
 
-* Make sure MongoDB is running and accessible via the URI in `.env`
-* Delete action includes a confirmation page to prevent accidental deletion
-* Uses `ObjectId` from `bson` to work with MongoDB document IDs
+Saima Usman
+PPMCAD-15
 
 ---
 
