@@ -1,20 +1,15 @@
-import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
-
+import os
 
 # Load env vars
 load_dotenv()
 
 app = Flask(__name__)
-
-# ✅ Set default Mongo URI (IMPORTANT)
-app.config["MONGO_URI"] = os.environ.get(
-    "MONGO_URI",
-    "mongodb://localhost:27017/students"
-)
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+app.secret_key = os.getenv("SECRET_KEY")
 
 mongo = PyMongo(app)
 
@@ -63,5 +58,4 @@ def delete_student(student_id):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)
-
 
