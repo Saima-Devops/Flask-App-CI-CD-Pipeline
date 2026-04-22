@@ -1,10 +1,117 @@
-# Flask App CI/CD Pipeline in 2 ways
+# Flask App CI/CD Pipeline in 2 ways (Github Actions & Jenkins)
 
 
-## PART 1 —  CI/CD through GitHub Actions
+## PART 1 — Flask CI/CD Pipeline (GitHub Actions + EC2 Staging Deployment)
 
+### Project Overview
 
-### Step-01: Fork the Source Code from Github Repo
+This project demonstrates a complete CI/CD pipeline for a Flask web application using:
+
+- GitHub Actions for Continuous Integration (CI)
+- Automated testing (pytest)
+- Code quality checks (pylint, bandit)
+- Deployment to an AWS EC2 staging environment using SSH
+
+-----
+
+### Tech Stack
+
+- **Python 3.10** → Core programming language for application development
+- **Flask** → Web framework used to build the application’s backend services
+- **MongoDB** → NoSQL database used for storing and managing data 
+- **GitHub Actions** → CI/CD platform used to automate testing and deployment workflows
+- **EC2** → AWS Ubuntu Server for Staging Environment
+- **Gunicorn** → Production-grade WSGI server used to run the Flask application
+- **Nginx** → Reverse proxy server used to handle client requests and forward them to Gunicorn 
+- **systemd** → Service manager used to run and manage the Flask application as a background service
+
+-----
+
+### Repository Structure
+
+```bash
+flask_Practice/
+│
+├── app.py
+├── requirements.txt
+├── test_app.py
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yaml
+├── templates/
+├── static/
+└── README.md
+```
+----
+
+### CI/CD Pipeline Architecture
+
+```bash
+GitHub Push (staging branch)
+        ↓
+GitHub Actions Trigger
+        ↓
+CI Job (Test + Lint + Security Scan)
+        ↓
+If Success → SSH into EC2
+        ↓
+Pull latest code
+        ↓
+Install dependencies
+        ↓
+Restart Flask service (systemd)
+        ↓
+Nginx serves application
+```
+
+----
+
+### CONTINUOUS INTEGRATION (CI)
+
+✔ Runs automatically on every push to:
+- `staging`
+
+#### CI Steps:
+
+- Checkout repository
+- Setup Python environment
+- Install dependencies
+- Run linting (pylint)
+- Run security scan (bandit)
+- Execute test suite (pytest)
+
+-----
+
+#### CI Tools Used
+
+- pytest → unit testing
+- pylint → code quality check
+- bandit → security analysis
+
+-------
+
+### HOW TO RUN TESTS LOCALLY
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate environment
+# Windows:
+venv\Scripts\activate
+
+# Mac/Linux:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run tests
+pytest -v
+```
+------
+
+#### 1: Fork the Source Code from Github Repo
 
 - Source Code Repo Link  ---> Fork  --->  My own Repo Name  ---> Fork only the main branch
 -  Click Fork
@@ -15,6 +122,129 @@ git clone https://github.com/Saima-Devops/Flask-App-CI-CD-Pipeline.git
 cd Flask-App-CI-CD-Pipeline
 ````
 -----
+
+#### 2: Run & Test the App Locally
+
+Open the project folder in 'VSCode'
+
+<img width="1891" height="993" alt="image" src="https://github.com/user-attachments/assets/d056f3b9-471c-4e81-aaab-3f260303b07a" />
+
+-----
+
+### Connect with MongoDB and get the URI 
+
+<img width="1474" height="726" alt="image" src="https://github.com/user-attachments/assets/c6d1c612-a446-4e80-953d-47c9ea8806ee" />
+
+
+### Set Environment Variables
+
+Create `.env` file:
+
+```bash
+MONGO_URI=<your mongodb_connection_string_here>
+```
+-----
+
+### Local Setup
+
+#### Create a Virtual Environment first
+
+```bash
+python -m venv venv
+# Activate venv
+# Windows:
+venv\Scripts\activate
+# Linux / Mac:
+source venv/bin/activate
+```
+
+#### Install all dependencies
+
+```bash
+pip install -r requirements.txt
+python3 app.py
+```
+
+<img width="1314" height="647" alt="image" src="https://github.com/user-attachments/assets/ecdd5405-ae5c-4674-9ca0-7665b52d3898" />
+
+-----
+
+#### Run the App locally
+
+<img width="1919" height="595" alt="image" src="https://github.com/user-attachments/assets/16f2772f-77b1-4342-9b23-3f142ff27ea5" />
+
+
+**Check its functionality**
+
+<img width="1908" height="652" alt="image" src="https://github.com/user-attachments/assets/3daa6f12-cfbb-4280-a7bd-3e19688209ae" />
+
+**Everything is working fine** 👍
+
+----
+
+**Ran Pytest on local:**
+
+<img width="1570" height="413" alt="image" src="https://github.com/user-attachments/assets/02910f77-e641-4952-a117-172783ce94f1" />
+
+
+------
+
+## CONTINUOUS DEPLOYMENT (CD) - STAGING ONLY
+
+Deployment happens only when code is pushed to:
+
+`staging branch`
+
+
+### Github Branching Setup
+
+```bash
+git checkout -b staging
+git push origin staging
+git checkout main
+```
+-----
+
+## AWS EC2 STAGING SETUP
+
+### 1. Create EC2 Instance
+
+- Ubuntu 22.04
+- Open ports:
+- 22 (SSH)
+- 80 (HTTP)
+
+-------
+
+### 2. Install dependencies on EC2
+
+```bash
+sudo apt update -y
+sudo apt install -y python3-pip python3-venv nginx git
+```
+
+-------
+
+### 3. Create application directory
+
+```bash
+sudo mkdir -p /var/www/flask-app
+
+sudo chown -R ubuntu:ubuntu /var/www/flask-app
+```
+
+
+
+
+
+
+
+
+
+
+
+-----
+
 
 ### Step-02: Run & Test the App Locally
 
@@ -32,7 +262,7 @@ flask-app/
 │── Jenkinsfile
 ```
 
-Open the project folder in 'VSCode'
+**Open the project folder in 'VSCode'**
 
 <img width="1891" height="993" alt="image" src="https://github.com/user-attachments/assets/d056f3b9-471c-4e81-aaab-3f260303b07a" />
 
