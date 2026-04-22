@@ -2,7 +2,7 @@
 Flask Application for Student Management
 Includes CRUD operations with MongoDB
 """
-
+# This is Student DB
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_pymongo import PyMongo
