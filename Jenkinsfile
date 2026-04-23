@@ -1,3 +1,4 @@
+# This is a jenkinsfile.
 pipeline {
     agent any
 
