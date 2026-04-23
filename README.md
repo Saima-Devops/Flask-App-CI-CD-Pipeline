@@ -184,7 +184,7 @@ python3 app.py
 
 ----
 
-**RUn Pytest on local:**
+**Run Pytest on local:**
 
 <img width="1570" height="413" alt="image" src="https://github.com/user-attachments/assets/02910f77-e641-4952-a117-172783ce94f1" />
 
@@ -325,7 +325,7 @@ sudo systemctl restart nginx
 ----
 
 
-## STEP-5 Now Create Workflow Folder for github Actions
+## STEP-5 Now Create Workflow Folder for GitHub Actions
 
 **Create Folders:**
 
@@ -594,7 +594,18 @@ flask-app/
 | STAGING_IP  | Secret Text |
 
 <br>
+----
 
+### Create Jenkinsfile
+
+```groovy
+
+
+
+
+
+```
+----
 
 ### Build Pipeline Now
 
