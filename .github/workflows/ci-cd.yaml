@@ -9,7 +9,7 @@ permissions:
 
 jobs:
 
-# ================= CI Pipeline Github Actions=================
+# =================CI Pipeline Github Actions=================
   ci:
     runs-on: ubuntu-latest
 
