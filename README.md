@@ -1,4 +1,4 @@
-# Flask App CI/CD Pipeline in 2 ways (Github Actions & Jenkins)
+# Flask App CI/CD Pipeline in 2 ways (with Github Actions & Jenkins)
 
 
 ## PART 1 — Flask CI/CD Pipeline (GitHub Actions + EC2 Staging Deployment)
@@ -111,7 +111,9 @@ pytest -v
 ```
 ------
 
-#### 1: Fork the Source Code from Github Repo
+#### First Things First 
+
+## STEP-1: Fork the Source Code from Github Repo
 
 - Source Code Repo Link  ---> Fork  --->  My own Repo Name  ---> Fork only the main branch
 -  Click Fork
@@ -123,7 +125,7 @@ cd Flask-App-CI-CD-Pipeline
 ````
 -----
 
-#### 2: Run & Test the App Locally
+## STEP-2: Run & Test the App Locally
 
 Open the project folder in 'VSCode'
 
@@ -145,9 +147,9 @@ MONGO_URI=<your mongodb_connection_string_here>
 ```
 -----
 
-### Local Setup
+## Local Setup
 
-#### Create a Virtual Environment first
+### Create a Virtual Environment first
 
 ```bash
 python -m venv venv
@@ -158,7 +160,7 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-#### Install all dependencies
+### Install all dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -169,7 +171,7 @@ python3 app.py
 
 -----
 
-#### Run the App locally
+### Run the App locally
 
 <img width="1919" height="595" alt="image" src="https://github.com/user-attachments/assets/16f2772f-77b1-4342-9b23-3f142ff27ea5" />
 
@@ -182,32 +184,38 @@ python3 app.py
 
 ----
 
-**Ran Pytest on local:**
+**RUn Pytest on local:**
 
 <img width="1570" height="413" alt="image" src="https://github.com/user-attachments/assets/02910f77-e641-4952-a117-172783ce94f1" />
 
 
 ------
 
-## CONTINUOUS DEPLOYMENT (CD) - STAGING ONLY
+## CONTINUOUS DEPLOYMENT (CD) - STAGING ON EC2
 
 Deployment happens only when code is pushed to:
 
 `staging branch`
 
 
-### Github Branching Setup
+## STEP-3 Github Branching Setup
 
 ```bash
 git checkout -b staging
 git push origin staging
 git checkout main
 ```
+
+<img width="1290" height="525" alt="image" src="https://github.com/user-attachments/assets/4a3f46fb-fda5-478b-a6ef-6dc03998c0b3" />
+
+
+<img width="1864" height="797" alt="image" src="https://github.com/user-attachments/assets/c8822567-567c-4bc0-87b3-f211466cca7c" />
+
 -----
 
-## AWS EC2 STAGING SETUP
+## STEP-4 AWS EC2 STAGING ENVIRONMENT SETUP
 
-### 1. Create EC2 Instance
+### 1. Create an EC2 Instance with:
 
 - Ubuntu 22.04
 - Open ports:
@@ -232,119 +240,10 @@ sudo mkdir -p /var/www/flask-app
 
 sudo chown -R ubuntu:ubuntu /var/www/flask-app
 ```
-
-
-
-
-
-
-
-
-
-
-
------
-
-
-### Step-02: Run & Test the App Locally
-
-#### Project Structure 
-
-```bash
-flask-app/
-│── app.py
-│── requirements.txt
-│── .env
-│── templates/
-│── .github/workflows/deploy.yml
-│── start_flask.sh
-│── test_app.py
-│── Jenkinsfile
-```
-
-**Open the project folder in 'VSCode'**
-
-<img width="1891" height="993" alt="image" src="https://github.com/user-attachments/assets/d056f3b9-471c-4e81-aaab-3f260303b07a" />
-
------
-
-### Connect with MongoDB and get the URI 
-
-<img width="1474" height="726" alt="image" src="https://github.com/user-attachments/assets/c6d1c612-a446-4e80-953d-47c9ea8806ee" />
-
-
-### Set Environment Variables
-
-Create `.env` file:
-
-```bash
-MONGO_URI=<your mongodb_connection_string_here>
-```
-
------
-
-### Local Setup
-
-#### Create a Virtual Environment first
-
-```bash
-python -m venv venv
-# Activate venv
-# Windows:
-venv\Scripts\activate
-# Linux / Mac:
-source venv/bin/activate
-```
-
-#### Install all dependencies
-
-```bash
-pip install -r requirements.txt
-python3 app.py
-```
-
-<img width="1314" height="647" alt="image" src="https://github.com/user-attachments/assets/ecdd5405-ae5c-4674-9ca0-7665b52d3898" />
-
------
-
-#### Run the App locally
-
-<img width="1919" height="595" alt="image" src="https://github.com/user-attachments/assets/16f2772f-77b1-4342-9b23-3f142ff27ea5" />
-
-
-**Check its functionality**
-
-<img width="1908" height="652" alt="image" src="https://github.com/user-attachments/assets/3daa6f12-cfbb-4280-a7bd-3e19688209ae" />
-
-**Everything is working fine** 👍
-
 ----
 
-**Ran Pytest on local:**
 
-<img width="1570" height="413" alt="image" src="https://github.com/user-attachments/assets/02910f77-e641-4952-a117-172783ce94f1" />
-
-
-------
-
-### Step-03: Github Branching Setup
-
-#### Create Branches
-
-```bash
-git checkout -b staging
-git push origin staging
-git checkout main
-```
-
-<img width="1290" height="525" alt="image" src="https://github.com/user-attachments/assets/4a3f46fb-fda5-478b-a6ef-6dc03998c0b3" />
-
-
-<img width="1864" height="797" alt="image" src="https://github.com/user-attachments/assets/c8822567-567c-4bc0-87b3-f211466cca7c" />
-
----
-
-### Step-04: Now Create Workflow Folder for github Actions
+## STEP-5 Now Create Workflow Folder for github Actions
 
 **Create Folders:**
 
@@ -501,7 +400,7 @@ jobs:
 ```
 -----
 
-### Step 5: Add Secrets (Required)
+## STEP-6: Add Github Secrets (Required)
 
 **Go to Github Repo:**
 
@@ -509,15 +408,14 @@ jobs:
 
 **Add:**
 
-- **DEPLOY_KEY**
-- **API_TOKEN**
 - **MONGO_URI**
-- **STAGING_HOST**
-- **STAGING_USER**
-- **STAGING_SSH_KEY**
+- **STAGING_HOST** = (EC2 public ip)
+- **STAGING_USER** = (ec2 username, ubuntu in my case)
+- **STAGING_SSH_KEY** = (.pem file)
 
 
-<img width="1887" height="755" alt="image" src="https://github.com/user-attachments/assets/acff3e42-135a-41b8-ac09-0c4690cf6587" />
+<img width="1854" height="433" alt="image" src="https://github.com/user-attachments/assets/1f097660-959b-458c-a0a8-ba6d0dd906d9" />
+
 
 ----------
 
@@ -527,16 +425,16 @@ jobs:
 - GitHub Actions runs CI
 - Deploys to EC2
 - Restarts Flask service
-- Nginx serves app
+- Nginx serves the app
 
 ---------------
 
-### Step 6: Push Code to Github
+## STEP-7: Push Code to Github from the Staging Branch
 
 ```bash
 git add .
 git commit -m "Added GitHub Actions CI/CD pipeline"
-git push origin main
+git push origin staging
 ```
 
 **This triggers:**
@@ -546,6 +444,40 @@ git push origin main
 - Build
 
 <img width="1887" height="778" alt="image" src="https://github.com/user-attachments/assets/0c1d4021-21a2-4001-9857-cd0bfbb26cda" />
+
+
+---------------
+
+## STEP-8: 
+
+
+
+
+
+
+
+-----
+
+
+
+
+#### Project Structure for Jenkins Pipeline
+
+```bash
+flask-app/
+│── app.py
+│── requirements.txt
+│── .env
+│── templates/
+│── .github/workflows/ci-cd.yml
+│── start_flask.sh
+│── test_app.py
+│── Jenkinsfile
+```
+
+
+
+------
 
 
 
