@@ -5,6 +5,7 @@ pipeline {
         MONGO_URI = credentials('MONGO_URI')
         EC2_HOST = '54.221.90.160'
         EC2_USER = 'ubuntu'
+        APP_DIR = '/home/ubuntu/flask-app'
     }
 
     stages {
@@ -18,6 +19,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
+                set -e
                 python3 -m venv venv
                 . venv/bin/activate
                 pip install --upgrade pip
@@ -30,9 +32,14 @@ pipeline {
         stage('Code Quality') {
             steps {
                 sh '''
+                set -e
                 . venv/bin/activate
+
+                echo "🔍 Running pylint..."
                 pylint app.py || true
-                bandit -r . -s B104,B101
+
+                echo "🔐 Running bandit (excluding venv)..."
+                bandit -r . --exclude venv -s B104,B101
                 '''
             }
         }
@@ -40,6 +47,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
+                set -e
                 . venv/bin/activate
                 pytest -v
                 '''
@@ -49,39 +57,40 @@ pipeline {
         stage('Deploy to EC2 (Staging)') {
             steps {
                 sshagent(['ec2-key']) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
-                    set -e
+                    sh """
+                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
+                        set -e
 
-                    APP_DIR="/home/ubuntu/flask-app"
+                        echo "🚀 Jenkins Staging Deploy"
 
-                    echo "🚀 Jenkins Staging Deploy"
+                        if [ -d "$APP_DIR/.git" ]; then
+                          cd $APP_DIR
+                          git fetch origin
+                          git reset --hard origin/staging
+                        else
+                          git clone -b staging https://github.com/Saima-Devops/Flask-App-CI-CD-Pipeline.git $APP_DIR
+                          cd $APP_DIR
+                        fi
 
-                    if [ -d "$APP_DIR/.git" ]; then
-                      cd $APP_DIR
-                      git fetch origin
-                      git reset --hard origin/staging
-                    else
-                      git clone -b staging https://github.com/Saima-Devops/Flask-App-CI-CD-Pipeline.git $APP_DIR
-                      cd $APP_DIR
-                    fi
+                        echo "📦 Setting environment variables"
+                        echo "MONGO_URI=$MONGO_URI" > .env
 
-                    echo "MONGO_URI=$MONGO_URI" > .env
+                        echo "🐍 Setting up virtual environment"
+                        python3 -m venv venv
+                        source venv/bin/activate
 
-                    python3 -m venv venv
-                    source venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                        pip install gunicorn
 
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                    pip install gunicorn
+                        echo "🔄 Restarting services"
+                        sudo systemctl daemon-reload
+                        sudo systemctl restart flask-app
+                        sudo systemctl restart nginx
 
-                    sudo systemctl daemon-reload
-                    sudo systemctl restart flask-app
-                    sudo systemctl restart nginx
-
-                    echo "✅ Deployment Done"
-                    EOF
-                    '''
+                        echo "✅ Deployment Done"
+                    '
+                    """
                 }
             }
         }
