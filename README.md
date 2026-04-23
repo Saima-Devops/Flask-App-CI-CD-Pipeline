@@ -557,18 +557,18 @@ http://<EC2-PUBLIC-IP>
 
 ------
 
+## PART:2 CI/CD Pipeline Automation with Jenkins
 
+### Stages
 
-
-
-
+- Install Dependencies
+- Lint & Security (pylint + bandit)
+- Run Tests (pytest)
+- Deploy Staging (branch: staging)
 
 -----
 
-
-
-
-#### Project Structure for Jenkins Pipeline
+### Project Structure for Jenkins Pipeline
 
 ```bash
 flask-app/
@@ -581,6 +581,23 @@ flask-app/
 │── test_app.py
 │── Jenkinsfile
 ```
+
+
+-----
+
+## Jenkins Credentials
+
+| ID          | Type        |
+|-------------|------------ |
+| staging-ssh | SSH Key     |
+| MONGO_URI   | Secret Text |
+| STAGING_IP  | Secret Text |
+
+
+
+
+
+
 
 
 
