@@ -585,7 +585,7 @@ flask-app/
 
 -----
 
-## Jenkins Credentials
+### Jenkins Credentials
 
 | ID          | Type        |
 |-------------|------------ |
@@ -593,9 +593,10 @@ flask-app/
 | MONGO_URI   | Secret Text |
 | STAGING_IP  | Secret Text |
 
+<br>
 
 
-## Build Pipeline Now
+### Build Pipeline Now
 
 <img width="1259" height="621" alt="Screenshot 2026-04-23 at 11 53 21 PM" src="https://github.com/user-attachments/assets/7a5cce3b-f13b-4a09-8e1a-30d7bb84d643" />
 
@@ -603,15 +604,16 @@ flask-app/
 
 
 🟢 Success after some troubleshooting!! 
-Hurrey ✅🎉
+
+Hurrey!! ✅🎉
 
 
 ------
 
 ## Author 
 
-**Saima Usman**
-Jr. DevOps Engineer
+**Saima Usman**\
+Jr. DevOps Engineer\
 (PPMCAD-15 Hero-Vired)
 
 ---
