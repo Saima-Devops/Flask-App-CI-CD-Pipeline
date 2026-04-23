@@ -184,7 +184,7 @@ python3 app.py
 
 ----
 
-**RUn Pytest on local:**
+**Run Pytest on local:**
 
 <img width="1570" height="413" alt="image" src="https://github.com/user-attachments/assets/02910f77-e641-4952-a117-172783ce94f1" />
 
@@ -325,7 +325,7 @@ sudo systemctl restart nginx
 ----
 
 
-## STEP-5 Now Create Workflow Folder for github Actions
+## STEP-5 Now Create Workflow Folder for GitHub Actions
 
 **Create Folders:**
 
@@ -534,8 +534,7 @@ git push origin staging
 
 <img width="1891" height="939" alt="image" src="https://github.com/user-attachments/assets/73e9b7e6-ecf7-47e2-98e3-7f02afeff282" />
 
-
----------------
+----------
 
 ## STEP-8: Access the App
 
@@ -549,6 +548,7 @@ http://<EC2-PUBLIC-IP>
 
 <img width="1919" height="547" alt="9" src="https://github.com/user-attachments/assets/43627edd-756c-4519-a94b-2d27abf86823" />
 
+<br>
 
 ### Final Output
 ✔ CI/CD fully automated\
@@ -593,14 +593,141 @@ flask-app/
 | MONGO_URI   | Secret Text |
 | STAGING_IP  | Secret Text |
 
-<br>
 
+----
+
+### Create Jenkinsfile
+
+```groovy
+
+pipeline {
+    agent any
+
+    environment {
+        MONGO_URI = credentials('MONGO_URI')
+        EC2_HOST = '54.221.90.160'
+        EC2_USER = 'ubuntu'
+        APP_DIR  = '/home/ubuntu/flask-app'
+    }
+
+    options {
+        timestamps()
+    }
+
+    stages {
+
+        stage('Clone') {
+            steps {
+                git branch: 'staging', url: 'https://github.com/Saima-Devops/Flask-App-CI-CD-Pipeline.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                set -e
+                python3 -m venv venv
+                . venv/bin/activate
+
+                pip install --upgrade pip
+                pip install -r requirements.txt
+
+                # Dev tools
+                pip install pytest pylint bandit
+                '''
+            }
+        }
+
+        stage('Code Quality') {
+            steps {
+                sh '''
+                set -e
+                . venv/bin/activate
+
+                echo "🔍 Running pylint..."
+                pylint app.py || true
+
+                echo "🔐 Running bandit (only scanning app code)..."
+                bandit app.py -s B104,B101
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                set -e
+                . venv/bin/activate
+                pytest -v
+                '''
+            }
+        }
+
+        stage('Deploy to EC2 (Staging)') {
+            steps {
+                sshagent(['ec2-key']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
+                        set -e
+
+                        echo "🚀 Starting Deployment"
+
+                        if [ -d "$APP_DIR/.git" ]; then
+                            cd $APP_DIR
+                            git fetch origin
+                            git reset --hard origin/staging
+                        else
+                            git clone -b staging https://github.com/Saima-Devops/Flask-App-CI-CD-Pipeline.git $APP_DIR
+                            cd $APP_DIR
+                        fi
+
+                        echo "📦 Setting ENV"
+                        echo "MONGO_URI=$MONGO_URI" > .env
+
+                        echo "🐍 Setting up Python env"
+                        python3 -m venv venv
+                        source venv/bin/activate
+
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                        pip install gunicorn
+
+                        echo "🔄 Restarting services"
+                        sudo systemctl daemon-reload
+                        sudo systemctl restart flask-app
+                        sudo systemctl restart nginx
+
+                        echo "✅ Deployment Successful"
+                    '
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline succeeded'
+        }
+        failure {
+            echo '❌ Pipeline failed'
+        }
+    }
+}
+
+```
+
+----
 
 ### Build Pipeline Now
 
 <img width="1259" height="621" alt="Screenshot 2026-04-23 at 11 53 21 PM" src="https://github.com/user-attachments/assets/7a5cce3b-f13b-4a09-8e1a-30d7bb84d643" />
 
 <img width="2524" height="1230" alt="image" src="https://github.com/user-attachments/assets/4f282a0e-9a0e-4a7a-8711-5ec35c7af339" />
+
+<img width="902" height="663" alt="Screenshot 2026-04-24 at 12 17 18 AM" src="https://github.com/user-attachments/assets/264d1961-1830-4b8e-aad9-87fc022711b8" />
+
+<br>
 
 
 🟢 Success after some troubleshooting!! 
