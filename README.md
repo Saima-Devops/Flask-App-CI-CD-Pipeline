@@ -595,24 +595,18 @@ flask-app/
 
 
 
+## Build Pipeline Now
+
+<img width="1259" height="621" alt="Screenshot 2026-04-23 at 11 53 21 PM" src="https://github.com/user-attachments/assets/7a5cce3b-f13b-4a09-8e1a-30d7bb84d643" />
+
+<img width="2524" height="1230" alt="image" src="https://github.com/user-attachments/assets/4f282a0e-9a0e-4a7a-8711-5ec35c7af339" />
 
 
-
-
+🟢 Success after some troubleshooting!! 
+Hurrey ✅🎉
 
 
 ------
-
-
-
-
-
-
-
-
-
-
-
 
 ## Author 
 
