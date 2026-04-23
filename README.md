@@ -215,7 +215,7 @@ git checkout main
 
 ## STEP-4 AWS EC2 STAGING ENVIRONMENT SETUP
 
-### 1. Create an EC2 Instance with:
+### Create an EC2 Instance with:
 
 - Ubuntu 22.04
 - Open ports:
@@ -224,7 +224,7 @@ git checkout main
 
 -------
 
-### 2. Install dependencies on EC2
+### Install dependencies on EC2
 
 ```bash
 sudo apt update -y
@@ -233,13 +233,95 @@ sudo apt install -y python3-pip python3-venv nginx git
 
 -------
 
-### 3. Create application directory
+### Create application directory
 
 ```bash
 sudo mkdir -p /var/www/flask-app
 
 sudo chown -R ubuntu:ubuntu /var/www/flask-app
 ```
+----
+
+### Gunicorn Setup
+
+```
+pip install gunicorn
+gunicorn -w 3 -b 127.0.0.1:5000 app:app
+```
+---
+
+### Systemd Service
+
+Create file:
+
+```
+sudo nano /etc/systemd/system/flask-app.service
+```
+
+### Service Config
+
+```
+[Unit]
+Description=Flask App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/var/www/flask-app
+Environment="PATH=/var/www/flask-app/venv/bin"
+ExecStart=/var/www/flask-app/venv/bin/gunicorn -w 3 -b 127.0.0.1:5000 app:app
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Start Service
+
+```
+sudo systemctl daemon-reload
+sudo systemctl enable flask-app
+sudo systemctl start flask-app
+```
+
+<img width="1229" height="572" alt="1" src="https://github.com/user-attachments/assets/33ab6015-80a2-42a4-a6cc-9bbcae2d85f5" />
+
+
+---
+
+### Nginx Configuration
+
+```
+sudo nano /etc/nginx/sites-available/flask-app
+```
+
+### Config
+
+```
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+### Enable
+
+```
+sudo rm /etc/nginx/sites-enabled/default
+sudo ln -s /etc/nginx/sites-available/flask-app /etc/nginx/sites-enabled
+
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+<img width="1240" height="382" alt="3" src="https://github.com/user-attachments/assets/c536f84c-8a69-4dfb-9965-a28693280177" />
+
+
+
 ----
 
 
@@ -398,6 +480,9 @@ jobs:
           echo "✅ Production Done!"
           EOF
 ```
+
+<img width="1914" height="941" alt="image" src="https://github.com/user-attachments/assets/3220c151-b275-4c6f-89d7-180e8f1f8ef1" />
+
 -----
 
 ## STEP-6: Add Github Secrets (Required)
@@ -445,10 +530,32 @@ git push origin staging
 
 <img width="1887" height="778" alt="image" src="https://github.com/user-attachments/assets/0c1d4021-21a2-4001-9857-cd0bfbb26cda" />
 
+<img width="1887" height="523" alt="6" src="https://github.com/user-attachments/assets/86b0e842-dd6c-471f-8b2e-b5fc376a037f" />
+
+<img width="1891" height="939" alt="image" src="https://github.com/user-attachments/assets/73e9b7e6-ecf7-47e2-98e3-7f02afeff282" />
+
 
 ---------------
 
-## STEP-8: 
+## STEP-8: Access the App
+
+```bash
+http://<EC2-PUBLIC-IP>
+```
+
+<img width="1911" height="869" alt="12" src="https://github.com/user-attachments/assets/8c52dbdf-a9ec-4562-9597-ea3e580ce57d" />
+
+<img width="1919" height="522" alt="8" src="https://github.com/user-attachments/assets/c424d89d-1241-4900-a6a2-2e161cc166f7" />
+
+<img width="1919" height="547" alt="9" src="https://github.com/user-attachments/assets/43627edd-756c-4519-a94b-2d27abf86823" />
+
+
+### Final Output
+✔ CI/CD fully automated\
+✔ Flask app deployed\
+✔ Nginx reverse proxy working
+
+------
 
 
 
