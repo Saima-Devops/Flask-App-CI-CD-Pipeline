@@ -737,6 +737,28 @@ Hurrey!! ✅🎉
 
 ------
 
+## Troubleshooting
+
+Fixed the Jenkinsfile Code Quality Stage as it was scanning the venv folder as well so I excluded that. Here's the change:
+
+```groovy
+stage("Code Quality") {
+    steps {
+        sh '''
+        source .venv/bin/activate
+        pylint app.py || true
+        bandit -r . --exclude .venv
+        '''
+    }
+}
+```
+
+<br>
+
+✅ All Errors Fixed!!
+
+------
+
 ## Author 
 
 **Saima Usman**\
