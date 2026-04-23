@@ -1,10 +1,119 @@
-# Flask App CI/CD Pipeline in 2 ways
+# Flask App CI/CD Pipeline in 2 ways (with Github Actions & Jenkins)
 
 
-## PART 1 —  CI/CD through GitHub Actions
+## PART 1 — Flask CI/CD Pipeline (GitHub Actions + EC2 Staging Deployment)
 
+### Project Overview
 
-### Step-01: Fork the Source Code from Github Repo
+This project demonstrates a complete CI/CD pipeline for a Flask web application using:
+
+- GitHub Actions for Continuous Integration (CI)
+- Automated testing (pytest)
+- Code quality checks (pylint, bandit)
+- Deployment to an AWS EC2 staging environment using SSH
+
+-----
+
+### Tech Stack
+
+- **Python 3.10** → Core programming language for application development
+- **Flask** → Web framework used to build the application’s backend services
+- **MongoDB** → NoSQL database used for storing and managing data 
+- **GitHub Actions** → CI/CD platform used to automate testing and deployment workflows
+- **EC2** → AWS Ubuntu Server for Staging Environment
+- **Gunicorn** → Production-grade WSGI server used to run the Flask application
+- **Nginx** → Reverse proxy server used to handle client requests and forward them to Gunicorn 
+- **systemd** → Service manager used to run and manage the Flask application as a background service
+
+-----
+
+### Repository Structure
+
+```bash
+flask_Practice/
+│
+├── app.py
+├── requirements.txt
+├── test_app.py
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yaml
+├── templates/
+├── static/
+└── README.md
+```
+----
+
+### CI/CD Pipeline Architecture
+
+```bash
+GitHub Push (staging branch)
+        ↓
+GitHub Actions Trigger
+        ↓
+CI Job (Test + Lint + Security Scan)
+        ↓
+If Success → SSH into EC2
+        ↓
+Pull latest code
+        ↓
+Install dependencies
+        ↓
+Restart Flask service (systemd)
+        ↓
+Nginx serves application
+```
+
+----
+
+### CONTINUOUS INTEGRATION (CI)
+
+✔ Runs automatically on every push to:
+- `staging`
+
+#### CI Steps:
+
+- Checkout repository
+- Setup Python environment
+- Install dependencies
+- Run linting (pylint)
+- Run security scan (bandit)
+- Execute test suite (pytest)
+
+-----
+
+#### CI Tools Used
+
+- pytest → unit testing
+- pylint → code quality check
+- bandit → security analysis
+
+-------
+
+### HOW TO RUN TESTS LOCALLY
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate environment
+# Windows:
+venv\Scripts\activate
+
+# Mac/Linux:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run tests
+pytest -v
+```
+------
+
+#### First Things First 
+
+## STEP-1: Fork the Source Code from Github Repo
 
 - Source Code Repo Link  ---> Fork  --->  My own Repo Name  ---> Fork only the main branch
 -  Click Fork
@@ -16,21 +125,7 @@ cd Flask-App-CI-CD-Pipeline
 ````
 -----
 
-### Step-02: Run & Test the App Locally
-
-#### Project Structure 
-
-```bash
-flask-app/
-│── app.py
-│── requirements.txt
-│── .env
-│── templates/
-│── .github/workflows/deploy.yml
-│── start_flask.sh
-│── test_app.py
-│── Jenkinsfile
-```
+## STEP-2: Run & Test the App Locally
 
 Open the project folder in 'VSCode'
 
@@ -50,12 +145,11 @@ Create `.env` file:
 ```bash
 MONGO_URI=<your mongodb_connection_string_here>
 ```
-
 -----
 
-### Local Setup
+## Local Setup
 
-#### Create a Virtual Environment first
+### Create a Virtual Environment first
 
 ```bash
 python -m venv venv
@@ -66,7 +160,7 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-#### Install all dependencies
+### Install all dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -77,7 +171,7 @@ python3 app.py
 
 -----
 
-#### Run the App locally
+### Run the App locally
 
 <img width="1919" height="595" alt="image" src="https://github.com/user-attachments/assets/16f2772f-77b1-4342-9b23-3f142ff27ea5" />
 
@@ -90,16 +184,21 @@ python3 app.py
 
 ----
 
-**Ran Pytest on local:**
+**RUn Pytest on local:**
 
 <img width="1570" height="413" alt="image" src="https://github.com/user-attachments/assets/02910f77-e641-4952-a117-172783ce94f1" />
 
 
 ------
 
-### Step-03: Github Branching Setup
+## CONTINUOUS DEPLOYMENT (CD) - STAGING ON EC2
 
-#### Create Branches
+Deployment happens only when code is pushed to:
+
+`staging branch`
+
+
+## STEP-3 Github Branching Setup
 
 ```bash
 git checkout -b staging
@@ -112,9 +211,121 @@ git checkout main
 
 <img width="1864" height="797" alt="image" src="https://github.com/user-attachments/assets/c8822567-567c-4bc0-87b3-f211466cca7c" />
 
+-----
+
+## STEP-4 AWS EC2 STAGING ENVIRONMENT SETUP
+
+### Create an EC2 Instance with:
+
+- Ubuntu 22.04
+- Open ports:
+- 22 (SSH)
+- 80 (HTTP)
+
+-------
+
+### Install dependencies on EC2
+
+```bash
+sudo apt update -y
+sudo apt install -y python3-pip python3-venv nginx git
+```
+
+-------
+
+### Create application directory
+
+```bash
+sudo mkdir -p /var/www/flask-app
+
+sudo chown -R ubuntu:ubuntu /var/www/flask-app
+```
+----
+
+### Gunicorn Setup
+
+```
+pip install gunicorn
+gunicorn -w 3 -b 127.0.0.1:5000 app:app
+```
 ---
 
-### Step-04: Now Create Workflow Folder for github Actions
+### Systemd Service
+
+Create file:
+
+```
+sudo nano /etc/systemd/system/flask-app.service
+```
+
+### Service Config
+
+```
+[Unit]
+Description=Flask App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/var/www/flask-app
+Environment="PATH=/var/www/flask-app/venv/bin"
+ExecStart=/var/www/flask-app/venv/bin/gunicorn -w 3 -b 127.0.0.1:5000 app:app
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Start Service
+
+```
+sudo systemctl daemon-reload
+sudo systemctl enable flask-app
+sudo systemctl start flask-app
+```
+
+<img width="1229" height="572" alt="1" src="https://github.com/user-attachments/assets/33ab6015-80a2-42a4-a6cc-9bbcae2d85f5" />
+
+
+---
+
+### Nginx Configuration
+
+```
+sudo nano /etc/nginx/sites-available/flask-app
+```
+
+### Config
+
+```
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+### Enable
+
+```
+sudo rm /etc/nginx/sites-enabled/default
+sudo ln -s /etc/nginx/sites-available/flask-app /etc/nginx/sites-enabled
+
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+<img width="1240" height="382" alt="3" src="https://github.com/user-attachments/assets/c536f84c-8a69-4dfb-9965-a28693280177" />
+
+
+
+----
+
+
+## STEP-5 Now Create Workflow Folder for github Actions
 
 **Create Folders:**
 
@@ -269,9 +480,12 @@ jobs:
           echo "✅ Production Done!"
           EOF
 ```
+
+<img width="1914" height="941" alt="image" src="https://github.com/user-attachments/assets/3220c151-b275-4c6f-89d7-180e8f1f8ef1" />
+
 -----
 
-### Step 5: Add Secrets (Required)
+## STEP-6: Add Github Secrets (Required)
 
 **Go to Github Repo:**
 
@@ -279,15 +493,14 @@ jobs:
 
 **Add:**
 
-- **DEPLOY_KEY**
-- **API_TOKEN**
 - **MONGO_URI**
-- **STAGING_HOST**
-- **STAGING_USER**
-- **STAGING_SSH_KEY**
+- **STAGING_HOST** = (EC2 public ip)
+- **STAGING_USER** = (ec2 username, ubuntu in my case)
+- **STAGING_SSH_KEY** = (.pem file)
 
 
-<img width="1887" height="755" alt="image" src="https://github.com/user-attachments/assets/acff3e42-135a-41b8-ac09-0c4690cf6587" />
+<img width="1854" height="433" alt="image" src="https://github.com/user-attachments/assets/1f097660-959b-458c-a0a8-ba6d0dd906d9" />
+
 
 ----------
 
@@ -297,16 +510,16 @@ jobs:
 - GitHub Actions runs CI
 - Deploys to EC2
 - Restarts Flask service
-- Nginx serves app
+- Nginx serves the app
 
 ---------------
 
-### Step 6: Push Code to Github
+## STEP-7: Push Code to Github from the Staging Branch
 
 ```bash
 git add .
 git commit -m "Added GitHub Actions CI/CD pipeline"
-git push origin main
+git push origin staging
 ```
 
 **This triggers:**
@@ -317,21 +530,91 @@ git push origin main
 
 <img width="1887" height="778" alt="image" src="https://github.com/user-attachments/assets/0c1d4021-21a2-4001-9857-cd0bfbb26cda" />
 
+<img width="1887" height="523" alt="6" src="https://github.com/user-attachments/assets/86b0e842-dd6c-471f-8b2e-b5fc376a037f" />
+
+<img width="1891" height="939" alt="image" src="https://github.com/user-attachments/assets/73e9b7e6-ecf7-47e2-98e3-7f02afeff282" />
 
 
+---------------
+
+## STEP-8: Access the App
+
+```bash
+http://<EC2-PUBLIC-IP>
+```
+
+<img width="1911" height="869" alt="12" src="https://github.com/user-attachments/assets/8c52dbdf-a9ec-4562-9597-ea3e580ce57d" />
+
+<img width="1919" height="522" alt="8" src="https://github.com/user-attachments/assets/c424d89d-1241-4900-a6a2-2e161cc166f7" />
+
+<img width="1919" height="547" alt="9" src="https://github.com/user-attachments/assets/43627edd-756c-4519-a94b-2d27abf86823" />
 
 
+### Final Output
+✔ CI/CD fully automated\
+✔ Flask app deployed\
+✔ Nginx reverse proxy working
+
+------
+
+## PART:2 CI/CD Pipeline Automation with Jenkins
+
+### Stages
+
+- Install Dependencies
+- Lint & Security (pylint + bandit)
+- Run Tests (pytest)
+- Deploy Staging (branch: staging)
+
+-----
+
+### Project Structure for Jenkins Pipeline
+
+```bash
+flask-app/
+│── app.py
+│── requirements.txt
+│── .env
+│── templates/
+│── .github/workflows/ci-cd.yml
+│── start_flask.sh
+│── test_app.py
+│── Jenkinsfile
+```
 
 
+-----
+
+### Jenkins Credentials
+
+| ID          | Type        |
+|-------------|------------ |
+| staging-ssh | SSH Key     |
+| MONGO_URI   | Secret Text |
+| STAGING_IP  | Secret Text |
+
+<br>
 
 
+### Build Pipeline Now
+
+<img width="1259" height="621" alt="Screenshot 2026-04-23 at 11 53 21 PM" src="https://github.com/user-attachments/assets/7a5cce3b-f13b-4a09-8e1a-30d7bb84d643" />
+
+<img width="2524" height="1230" alt="image" src="https://github.com/user-attachments/assets/4f282a0e-9a0e-4a7a-8711-5ec35c7af339" />
 
 
+🟢 Success after some troubleshooting!! 
+
+Hurrey!! ✅🎉
+
+
+------
 
 ## Author 
 
-Saima Usman
-PPMCAD-15
+**Saima Usman**\
+Jr. DevOps Engineer\
+(PPMCAD-15 Hero-Vired)
 
 ---
 
