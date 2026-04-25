@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         MONGO_URI = credentials('MONGO_URI')
-        EC2_HOST = '54.221.90.160'
+        EC2_HOST = '3.91.84.71'
         EC2_USER = 'ubuntu'
         APP_DIR = '/home/ubuntu/flask-app'
     }
@@ -58,12 +58,12 @@ pipeline {
             steps {
                 sshagent(['ec2-key']) {
                     sh """
-                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
+                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
                         set -e
 
-                        echo "🚀 Jenkins Staging Deploy"
+                        echo '🚀 Jenkins Staging Deploy'
 
-                        if [ -d "$APP_DIR/.git" ]; then
+                        if [ -d '$APP_DIR/.git' ]; then
                           cd $APP_DIR
                           git fetch origin
                           git reset --hard origin/staging
@@ -72,24 +72,26 @@ pipeline {
                           cd $APP_DIR
                         fi
 
-                        echo "📦 Setting environment variables"
-                        echo "MONGO_URI=$MONGO_URI" > .env
+                        echo '📦 Setting environment variables'
+                        echo 'MONGO_URI=${MONGO_URI}' > .env
 
-                        echo "🐍 Setting up virtual environment"
-                        python3 -m venv venv
+                        echo '🐍 Setting up virtual environment'
+                        if [ ! -d 'venv' ]; then
+                            python3 -m venv venv
+                        fi
                         source venv/bin/activate
 
                         pip install --upgrade pip
                         pip install -r requirements.txt
                         pip install gunicorn
 
-                        echo "🔄 Restarting services"
+                        echo '🔄 Restarting services'
                         sudo systemctl daemon-reload
                         sudo systemctl restart flask-app
                         sudo systemctl restart nginx
 
-                        echo "✅ Deployment Done"
-                    '
+                        echo '✅ Deployment Done'
+                    "
                     """
                 }
             }
@@ -99,9 +101,37 @@ pipeline {
     post {
         success {
             echo '✅ Pipeline succeeded'
+
+            emailext (
+                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+Build SUCCESS!
+
+Job: ${env.JOB_NAME}
+Build Number: ${env.BUILD_NUMBER}
+Branch: ${env.BRANCH_NAME}
+
+Check details: ${env.BUILD_URL}
+""",
+                to: "dzinesfactory@gmail.com"
+            )
         }
+
         failure {
             echo '❌ Pipeline failed'
+
+            emailext (
+                subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+Build FAILED!
+
+Job: ${env.JOB_NAME}
+Build Number: ${env.BUILD_NUMBER}
+
+Check logs: ${env.BUILD_URL}
+""",
+                to: "dzinesfactory@gmail.com"
+            )
         }
     }
 }
