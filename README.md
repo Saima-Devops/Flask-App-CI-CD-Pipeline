@@ -536,6 +536,15 @@ git push origin staging
 
 ----------
 
+## What This Pipeline Does
+
+- `main` :  Runs CI only (test, lint, security)
+- `staging` :  Runs CI + deploys to EC2
+
+<img width="1915" height="907" alt="image" src="https://github.com/user-attachments/assets/05515009-3657-41b9-b13a-eaadc3f11a45" />
+
+---
+
 ## STEP-8: Access the App
 
 ```bash
