@@ -777,6 +777,90 @@ stage("Code Quality") {
 
 ------
 
+## Email Notifications Setup in Jenkins:
+
+### 📧 Jenkins Email Notification Setup (Gmail)
+
+To enable email notifications in Jenkins, configure `SMTP` settings using a Gmail account.
+
+### 🔧 SMTP Configuration
+
+<br>
+
+| Setting        | Value              | Description                  |
+| -------------- | ------------------ | ---------------------------- |
+| SMTP Server    | smtp.gmail.com     | Gmail SMTP server            |
+| Port           | 465                | Secure SSL port              |
+| Use SSL        | Yes                | Enables secure connection    |
+| Authentication | Enabled            | Required for Gmail           |
+| Username       | Your Gmail address | Sender email address         |
+| Password       | Gmail App Password | Secure app-specific password |
+
+----
+
+### 🔐 Generate Gmail App Password
+
+⚠️ **Important: Do NOT use your normal Gmail password.**
+
+**Follow these steps:**
+
+- Go to your Google Account Security page
+- Enable 2-Step Verification (2FA)
+- Navigate to App Passwords
+
+**Select:**
+
+- App → Mail
+- Device → Other (Jenkins)
+- Click Generate
+- Copy the generated password and use it in Jenkins
+
+----
+
+### 🧪 Test Email Configuration
+
+After entering the SMTP details in Jenkins:
+
+- Click “Test configuration by sending test e-mail”
+- Verify that you receive the email successfully
+  
+-----
+
+### 📩 Pipeline Email Notification
+
+Jenkins is configured to send email notifications after each pipeline run:
+
+✅ On Success → Build success email\
+❌ On Failure → Build failure email
+
+----
+
+### Notes
+
+ - Ensure port 465 for SMTP is open on your EC2
+- Always use App Password, not your Gmail login password
+- Keep credentials secure and never commit them to your repository
+
+<br>
+
+<img width="1919" height="926" alt="image" src="https://github.com/user-attachments/assets/a059c90f-d3d0-49e8-bdf7-3ec39d574720" />
+
+-----
+
+### Common Issues
+
+
+- ❌ Email not sending
+- Wrong SMTP config
+- Not using App Password
+- Firewall blocking port
+
+
+❌ emailext not found
+Plugin not installed
+
+-------
+
 ## Author 
 
 **Saima Usman**\
