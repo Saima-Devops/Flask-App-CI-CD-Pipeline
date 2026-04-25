@@ -781,7 +781,3 @@ Jr. DevOps Engineer\
 MIT License
 
 ---
-
-MIT License
-
----
