@@ -856,8 +856,8 @@ Jenkins is configured to send email notifications after each pipeline run:
 - Firewall blocking port
 
 
-❌ emailext not found
-Plugin not installed
+- ❌ `emailext` not found
+- Plugin not installed
 
 -------
 
