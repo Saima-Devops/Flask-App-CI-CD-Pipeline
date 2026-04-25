@@ -5,11 +5,7 @@ pipeline {
         MONGO_URI = credentials('MONGO_URI')
         EC2_HOST = '54.221.90.160'
         EC2_USER = 'ubuntu'
-        APP_DIR  = '/home/ubuntu/flask-app'
-    }
-
-    options {
-        timestamps()
+        APP_DIR = '/home/ubuntu/flask-app'
     }
 
     stages {
@@ -26,11 +22,8 @@ pipeline {
                 set -e
                 python3 -m venv venv
                 . venv/bin/activate
-
                 pip install --upgrade pip
                 pip install -r requirements.txt
-
-                # Dev tools
                 pip install pytest pylint bandit
                 '''
             }
@@ -45,8 +38,8 @@ pipeline {
                 echo "🔍 Running pylint..."
                 pylint app.py || true
 
-                echo "🔐 Running bandit (only scanning app code)..."
-                bandit app.py -s B104,B101
+                echo "🔐 Running bandit (excluding venv)..."
+                bandit -r . --exclude venv -s B104,B101
                 '''
             }
         }
@@ -68,21 +61,21 @@ pipeline {
                     ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
                         set -e
 
-                        echo "🚀 Starting Deployment"
+                        echo "🚀 Jenkins Staging Deploy"
 
                         if [ -d "$APP_DIR/.git" ]; then
-                            cd $APP_DIR
-                            git fetch origin
-                            git reset --hard origin/staging
+                          cd $APP_DIR
+                          git fetch origin
+                          git reset --hard origin/staging
                         else
-                            git clone -b staging https://github.com/Saima-Devops/Flask-App-CI-CD-Pipeline.git $APP_DIR
-                            cd $APP_DIR
+                          git clone -b staging https://github.com/Saima-Devops/Flask-App-CI-CD-Pipeline.git $APP_DIR
+                          cd $APP_DIR
                         fi
 
-                        echo "📦 Setting ENV"
+                        echo "📦 Setting environment variables"
                         echo "MONGO_URI=$MONGO_URI" > .env
 
-                        echo "🐍 Setting up Python env"
+                        echo "🐍 Setting up virtual environment"
                         python3 -m venv venv
                         source venv/bin/activate
 
@@ -95,7 +88,7 @@ pipeline {
                         sudo systemctl restart flask-app
                         sudo systemctl restart nginx
 
-                        echo "✅ Deployment Successful"
+                        echo "✅ Deployment Done"
                     '
                     """
                 }
