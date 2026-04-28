@@ -69,7 +69,7 @@ Nginx serves application
 ### CONTINUOUS INTEGRATION (CI)
 
 ✔ Runs automatically on every push to:
-- `staging`
+- `staging` and `main`
 
 #### CI Steps:
 
@@ -757,7 +757,7 @@ Hurrey!! ✅🎉
 
 ## Troubleshooting
 
-Fixed the Jenkinsfile Code Quality Stage as it was scanning the venv folder as well so I excluded that. Here's the change:
+Fixed the Jenkinsfile **Code Quality Stage** as it was scanning the venv folder also, so I excluded that from scanning and tests. Here's the change:
 
 ```groovy
 stage("Code Quality") {
