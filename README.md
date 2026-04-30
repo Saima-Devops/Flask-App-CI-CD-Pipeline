@@ -63,6 +63,11 @@ Restart Flask service (systemd)
         ↓
 Nginx serves application
 ```
+-----
+
+## ARCHITECTURE DIAGRAM
+
+<img width="7392" height="2835" alt="CI_CD pipeline diagram - Page 1 (1)" src="https://github.com/user-attachments/assets/7737c850-423a-4007-af67-3d17c51552bf" />
 
 ----
 
@@ -577,6 +582,14 @@ http://<EC2-PUBLIC-IP>
 
 -----
 
+
+## ARCHITECTURE DIAGRAM
+
+<img width="9117" height="2723" alt="CI_CD pipeline diagram - Page 1" src="https://github.com/user-attachments/assets/6e40b4de-2c28-41a7-b5d6-3a6aadcf5186" />
+
+
+-----
+
 ### Project Structure for Jenkins Pipeline
 
 ```bash
@@ -590,7 +603,6 @@ flask-app/
 │── test_app.py
 │── Jenkinsfile
 ```
-
 
 -----
 
